@@ -71,6 +71,7 @@ libwebsocketsSrcFiles = [
     "lib/core-net/vhost.c",
     "lib/core-net/wsi-timeout.c",
     "lib/core-net/wsi.c",
+
     "lib/core/alloc.c",
     "lib/core/buflist.c",
     "lib/core/context.c",
@@ -79,7 +80,13 @@ libwebsocketsSrcFiles = [
     "lib/core/lws_dll2.c",
     "lib/core/lws_map.c",
     "lib/core/vfs.c",
+
     "lib/event-libs/poll/poll.c",
+
+    // Required for ttyd. lws_config.h must also define:
+    // LWS_WITH_LIBUV and LWS_WITH_EVENT_LIBS.
+    "lib/event-libs/libuv/libuv.c",
+
     "lib/misc/base64-decode.c",
     "lib/misc/cache-ttl/file.c",
     "lib/misc/cache-ttl/heap.c",
@@ -91,6 +98,7 @@ libwebsocketsSrcFiles = [
     "lib/misc/lwsac/lwsac.c",
     "lib/misc/prng.c",
     "lib/misc/sha-1.c",
+
     "lib/plat/unix/unix-caps.c",
     "lib/plat/unix/unix-fds.c",
     "lib/plat/unix/unix-file.c",
@@ -99,10 +107,12 @@ libwebsocketsSrcFiles = [
     "lib/plat/unix/unix-pipe.c",
     "lib/plat/unix/unix-service.c",
     "lib/plat/unix/unix-sockets.c",
+
     "lib/roles/h1/ops-h1.c",
     "lib/roles/h2/hpack.c",
     "lib/roles/h2/http2.c",
     "lib/roles/h2/ops-h2.c",
+
     "lib/roles/http/client/client-http.c",
     "lib/roles/http/cookie.c",
     "lib/roles/http/date.c",
@@ -111,16 +121,20 @@ libwebsocketsSrcFiles = [
     "lib/roles/http/server/lejp-conf.c",
     "lib/roles/http/server/lws-spa.c",
     "lib/roles/http/server/server.c",
+
     "lib/roles/listen/ops-listen.c",
     "lib/roles/pipe/ops-pipe.c",
     "lib/roles/raw-file/ops-raw-file.c",
     "lib/roles/raw-skt/ops-raw-skt.c",
+
     "lib/roles/ws/client-parser-ws.c",
     "lib/roles/ws/client-ws.c",
     "lib/roles/ws/ops-ws.c",
     "lib/roles/ws/server-ws.c",
+
     "lib/system/smd/smd.c",
     "lib/system/system.c",
+
     "lib/tls/openssl/openssl-client.c",
     "lib/tls/openssl/openssl-server.c",
     "lib/tls/openssl/openssl-session.c",
@@ -136,21 +150,21 @@ libwebsocketsSrcFiles = [
 
 libwebsocketsIncludePath = [
     "plugins",
+
     "lib/core",
     "lib/core-net",
     "lib/event-libs",
-    "lib/abstract",
-    "lib/tls",
-    "lib/roles",
     "lib/event-libs/libuv",
     "lib/event-libs/poll",
     "lib/event-libs/libevent",
     "lib/event-libs/glib",
     "lib/event-libs/libev",
-    "lib/jose/jwe",
-    "lib/jose/jws",
-    "lib/jose",
-    "lib/misc",
+
+    "lib/abstract",
+
+    "lib/tls",
+
+    "lib/roles",
     "lib/roles/http",
     "lib/roles/http/compression",
     "lib/roles/h1",
@@ -159,25 +173,50 @@ libwebsocketsIncludePath = [
     "lib/roles/cgi",
     "lib/roles/dbus",
     "lib/roles/raw-proxy",
-    "lib/abstract",
+    "lib/roles/mqtt",
+
+    "lib/jose/jwe",
+    "lib/jose/jws",
+    "lib/jose",
+
+    "lib/misc",
+
     "lib/system/async-dns",
     "lib/system/smd",
     "lib/system/metrics",
-    "lib/roles/mqtt",
+
     "lib/plat/unix",
     "lib",
 ]
 
 cc_library_static {
     name: "libwebsockets",
+
     srcs: libwebsocketsSrcFiles,
+
     local_include_dirs: libwebsocketsIncludePath,
-    export_include_dirs: ["include"],
+
+    export_include_dirs: [
+        "include",
+    ],
+
+    include_dirs: [
+        "external/libuv/include",
+    ],
+
+    cflags: [
+        "-DLWS_WITH_LIBUV=1",
+        "-DLWS_WITH_EVENT_LIBS=1",
+        "-DLWS_BUILD_HASH=\"android-recovery\"",
+    ],
+
     static_libs: [
         "libssl",
         "libcap",
     ],
+
     host_supported: true,
+
     product_variables: {
         debuggable: {
             cflags: [
@@ -185,23 +224,32 @@ cc_library_static {
             ],
         },
     },
+
     target: {
         darwin: {
             enabled: false,
         },
+
         android: {
             shared_libs: [
                 "libcrypto",
             ],
+
+            static_libs: [
+                "libuv",
+            ],
+
             cflags: [
                 "-Wno-unused-parameter",
                 "-Wno-missing-field-initializers",
             ],
         },
+
         host: {
             static_libs: [
                 "libcrypto",
             ],
+
             cflags: [
                 "-UNDEBUG",
                 "-Wall",

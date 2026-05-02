@@ -24,7 +24,7 @@
 /* #undef LWS_EXT_PTHREAD_LIBRARIES */
 
 /* #undef LWS_AVOID_SIGPIPE_IGN */
-/* #undef LWS_BUILD_HASH */
+#define LWS_BUILD_HASH "android-recovery"
 /* #undef LWS_BUILTIN_GETIFADDRS */
 #define LWS_CLIENT_HTTP_PROXYING
 /* #undef LWS_DETECTED_PLAT_IOS */
@@ -59,7 +59,11 @@
 #define LWS_HAVE_GETGRNAM_R
 #define LWS_HAVE_GETPWUID_R
 #define LWS_HAVE_GETPWNAM_R
+
+#if !defined(__ANDROID__) && !defined(__ANDROID_RECOVERY__)
 #define LWS_HAVE_LIBCAP
+#endif
+
 #define LWS_HAVE_HMAC_CTX_new
 #define LWS_HAVE_MALLOC_H
 #define LWS_HAVE_MALLOC_TRIM
@@ -78,7 +82,7 @@
 /* #undef LWS_HAVE_mbedtls_x509_crt_parse_file */
 /* #undef LWS_HAVE_MBEDTLS_NET_SOCKETS */
 /* #undef LWS_HAVE_MBEDTLS_AUTH_KEY_ID */
-/* #undef LWS_HAVE_NEW_UV_VERSION_H */
+#define LWS_HAVE_NEW_UV_VERSION_H
 #define LWS_HAVE_OPENSSL_ECDH_H
 /* #undef LWS_HAVE_OPENSSL_STACK */
 #define LWS_HAVE_PIPE2
@@ -100,12 +104,16 @@
 /* #undef LWS_HAVE_SSL_SESSION_up_ref */
 /* #undef LWS_HAVE__STAT32I64 */
 #define LWS_HAVE_STDINT_H
+
+#if !defined(__ANDROID__) && !defined(__ANDROID_RECOVERY__)
 #define LWS_HAVE_SYS_CAPABILITY_H
+#endif
+
 #define LWS_HAVE_TIMEGM
 /* #undef LWS_HAVE_TLS_CLIENT_METHOD */
 /* #undef LWS_HAVE_TLSV1_2_CLIENT_METHOD */
 #define LWS_HAVE_SUSECONDS_T
-/* #undef LWS_HAVE_UV_VERSION_H */
+#define LWS_HAVE_UV_VERSION_H
 #define LWS_HAVE_VFORK
 #define LWS_LIBRARY_VERSION "4.3.0"
 #define LWS_HAVE_X509_get_key_usage
@@ -175,7 +183,7 @@
 #define LWS_WITH_LEJP
 /* #undef LWS_WITH_LIBEV */
 /* #undef LWS_WITH_LIBEVENT */
-/* #undef LWS_WITH_LIBUV */
+#define LWS_WITH_LIBUV 1
 /* #undef LWS_WITH_SDEVENT */
 #define LWS_WITH_LWSAC
 #define LWS_LOGS_TIMESTAMP
@@ -231,9 +239,8 @@
 /* #undef LWS_WITH_ZIP_FOPS */
 /* #undef USE_OLD_CYASSL */
 /* #undef USE_WOLFSSL */
-/* #undef LWS_WITH_EVENT_LIBS */
+#define LWS_WITH_EVENT_LIBS 1
 /* #undef LWS_WITH_EVLIB_PLUGINS */
 /* #undef LWS_WITH_LIBUV_INTERNAL */
 /* #undef LWS_WITH_PLUGINS_API */
 /* #undef LWS_HAVE_RTA_PREF */
-

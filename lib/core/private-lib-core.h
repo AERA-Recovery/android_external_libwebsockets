@@ -662,7 +662,8 @@ struct lws_context {
 	void (*eventlib_signal_cb)(void *event_lib_handle, int signum);
 #endif
 
-#if defined(LWS_HAVE_SYS_CAPABILITY_H) && defined(LWS_HAVE_LIBCAP)
+#if !defined(__ANDROID__) && !defined(__ANDROID_RECOVERY__) && \
+    defined(LWS_HAVE_SYS_CAPABILITY_H) && defined(LWS_HAVE_LIBCAP)
 	cap_value_t caps[4];
 	char count_caps;
 #endif

@@ -13,24 +13,31 @@
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY; without even THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
+ * THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 #if !defined(_GNU_SOURCE)
 #define _GNU_SOURCE
 #endif
+
 #include "private-lib-core.h"
 
 #include <pwd.h>
 #include <grp.h>
 
-#if defined(LWS_HAVE_SYS_CAPABILITY_H) && defined(LWS_HAVE_LIBCAP)
+#if !defined(__ANDROID__) && !defined(__ANDROID_RECOVERY__) && \
+	defined(LWS_HAVE_SYS_CAPABILITY_H) && defined(LWS_HAVE_LIBCAP)
+#define LWS_USE_UNIX_CAPS 1
+#else
+#define LWS_USE_UNIX_CAPS 0
+#endif
+
+#if LWS_USE_UNIX_CAPS
 static void
 _lws_plat_apply_caps(unsigned int mode, const cap_value_t *cv, int count)
 {
@@ -189,9 +196,9 @@ lws_plat_drop_app_privileges(struct lws_context *context, int actually_drop)
 		}
 
 		lwsl_cx_notice(context, "effective group '%s'", g->gr_name);
-	} else
+	} else {
 		lwsl_cx_info(context, "not changing group");
-
+	}
 
 	/* if he gave us the uid or we have it from the username, set it */
 
@@ -210,7 +217,7 @@ lws_plat_drop_app_privileges(struct lws_context *context, int actually_drop)
 			return 1;
 		}
 
-#if defined(LWS_HAVE_SYS_CAPABILITY_H) && defined(LWS_HAVE_LIBCAP)
+#if LWS_USE_UNIX_CAPS
 		_lws_plat_apply_caps(CAP_PERMITTED, context->caps,
 				     context->count_caps);
 #endif
@@ -219,31 +226,35 @@ lws_plat_drop_app_privileges(struct lws_context *context, int actually_drop)
 #if defined(__APPLE__)
 				(int)
 #endif
-				context->gid))
+				context->gid)) {
 			return 1;
+		}
 
 		if (setuid(context->uid)) {
 			lwsl_cx_err(context, "setuid: %s failed",
 				    strerror(LWS_ERRNO));
 
 			return 1;
-		} else
+		} else {
 			lwsl_cx_notice(context, "effective user '%s'",
 					p->pw_name);
+		}
 
-#if defined(LWS_HAVE_SYS_CAPABILITY_H) && defined(LWS_HAVE_LIBCAP)
+#if LWS_USE_UNIX_CAPS
 		_lws_plat_apply_caps(CAP_EFFECTIVE, context->caps,
 				     context->count_caps);
 
 		if (context->count_caps) {
 			int n;
-			for (n = 0; n < context->count_caps; n++)
+			for (n = 0; n < context->count_caps; n++) {
 				lwsl_cx_notice(context, "   RETAINING CAP %d",
 					    (int)context->caps[n]);
+			}
 		}
 #endif
-	} else
+	} else {
 		lwsl_cx_info(context, "not changing user");
+	}
 
 	return 0;
 }

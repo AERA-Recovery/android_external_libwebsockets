@@ -1266,7 +1266,8 @@ lws_create_context(const struct lws_context_creation_info *info)
 #endif
 #endif
 
-#if defined(LWS_HAVE_SYS_CAPABILITY_H) && defined(LWS_HAVE_LIBCAP)
+#if !defined(__ANDROID__) && !defined(__ANDROID_RECOVERY__) && \
+    defined(LWS_HAVE_SYS_CAPABILITY_H) && defined(LWS_HAVE_LIBCAP)
 	memcpy(context->caps, info->caps, sizeof(context->caps));
 	context->count_caps = info->count_caps;
 #endif

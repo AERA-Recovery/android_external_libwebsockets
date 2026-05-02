@@ -99,7 +99,7 @@
 /* #undef realloc */
 
 /* Define to 1 if we have getifaddrs */
-#define LWS_HAVE_GETIFADDRS
+#define LWS_HAVE_GETIFADDRS 1
 
 /* Define if the inline keyword doesn't exist. */
 /* #undef inline */

@@ -142,8 +142,15 @@ typedef int suseconds_t;
 
 #else /* NOT WIN32 */
 #include <unistd.h>
-#if defined(LWS_HAVE_SYS_CAPABILITY_H) && defined(LWS_HAVE_LIBCAP)
+
+#if !defined(__ANDROID__) && !defined(__ANDROID_RECOVERY__) && \
+    defined(LWS_HAVE_SYS_CAPABILITY_H) && defined(LWS_HAVE_LIBCAP)
 #include <sys/capability.h>
+#else
+#ifndef LWS_ANDROID_CAP_VALUE_T_DEFINED
+#define LWS_ANDROID_CAP_VALUE_T_DEFINED
+typedef int cap_value_t;
+#endif
 #endif
 
 #if defined(__NetBSD__) || defined(__FreeBSD__) || defined(__QNX__) || defined(__OpenBSD__)

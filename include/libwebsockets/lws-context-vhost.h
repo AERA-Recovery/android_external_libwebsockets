@@ -679,7 +679,8 @@ struct lws_context_creation_info {
 	 */
 #endif
 
-#if defined(LWS_HAVE_SYS_CAPABILITY_H) && defined(LWS_HAVE_LIBCAP)
+#if !defined(__ANDROID__) && !defined(__ANDROID_RECOVERY__) && \
+    defined(LWS_HAVE_SYS_CAPABILITY_H) && defined(LWS_HAVE_LIBCAP)
 	cap_value_t caps[4];
 	/**< CONTEXT: array holding Linux capabilities you want to
 	 * continue to be available to the server after it transitions
